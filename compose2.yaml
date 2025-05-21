@@ -1,0 +1,51 @@
+version: "3"
+# The parser will ignore extension fields prefixed with x-
+x-deploy: &deploy-dev
+  deploy:
+    resources:
+      limits:
+        cpus: "1"
+        memory: 512M
+      reservations:
+        memory: 256M
+x-env_file: &env_file
+  env_file:
+    - .env
+x-restart: &restart
+  restart: always #no, on-failure , always(default), unless-stopped 
+
+services:
+  mysql:
+    image: mariadb:10.6.4-focal
+    networks: ["python"]
+    <<: [*deploy-dev, *env_file, *restart]
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_HOST="%" # <--- Это вам обязательно понадобится при выполнении ДЗ!
+
+  python:
+    depends_on: ["mysql"]
+    image: example-python
+    volumes:
+      - wp_data:/var/www/html
+    networks: ["python"]
+    <<: [*deploy-dev, *env_file, *restart]
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - DB_HOST=mysql
+
+
+volumes:
+  db_data: {}
+  wp_data: {}
+networks:
+  python:
+    name: python
+
