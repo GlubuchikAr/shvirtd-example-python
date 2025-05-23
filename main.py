@@ -24,7 +24,8 @@ create_table_query = f"""
 CREATE TABLE IF NOT EXISTS {db_database}.requests (
 id INT AUTO_INCREMENT PRIMARY KEY,
 request_date DATETIME,
-request_ip VARCHAR(255)
+request_ip VARCHAR(255),
+request_data VARCHAR(255)
 )
 """
 cursor.execute(create_table_query)
@@ -33,16 +34,17 @@ cursor.execute(create_table_query)
 def index():
     # Получение IP-адреса пользователя
     ip_address = request.headers.get('X-Forwarded-For')
+    data = json.loads(request.data)
 
     # Запись в базу данных
     now = datetime.now()
     current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-    query = "INSERT INTO requests (request_date, request_ip) VALUES (%s, %s)"
-    values = (current_time, ip_address)
+    query = "INSERT INTO requests (request_date, request_ip, request_data) VALUES (%s, %s, %s)"
+    values = (current_time, ip_address, data)
     cursor.execute(query, values)
     db.commit()
 
-    return f'TIME: {current_time}, IP: {ip_address}'
+    return f'TIME: {current_time}, IP: {ip_address}, BODY: {data}'
 
 
 if __name__ == '__main__':
