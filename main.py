@@ -1,3 +1,5 @@
+import json
+
 from flask import Flask
 from flask import request
 import os
@@ -25,16 +27,20 @@ CREATE TABLE IF NOT EXISTS {db_database}.requests (
 id INT AUTO_INCREMENT PRIMARY KEY,
 request_date DATETIME,
 request_ip VARCHAR(255),
-request_data VARCHAR(255)
+request_data TEXT
 )
 """
 cursor.execute(create_table_query)
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
     # Получение IP-адреса пользователя
     ip_address = request.headers.get('X-Forwarded-For')
-    data = json.loads(request.data)
+    data = request.data.decode('utf-8')
+ #   try:
+ #       data = json.loads(request.data.decode('utf-8'))
+ #   except json.JSONDecodeError:
+ #       data = ""
 
     # Запись в базу данных
     now = datetime.now()
