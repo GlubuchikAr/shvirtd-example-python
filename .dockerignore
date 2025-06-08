@@ -3,3 +3,4 @@
  haproxy
  base
  *.yaml
+docker.sh
