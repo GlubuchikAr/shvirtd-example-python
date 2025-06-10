@@ -15,30 +15,30 @@ x-restart: &restart
   restart: always #no, on-failure , always(default), unless-stopped 
 
 services:
-  db:
-    image: mysql:8
-    <<: [*deploy-dev, *env_file, *restart]
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_ROOT_HOST="%" # <--- Это вам обязательно понадобится при выполнении ДЗ!
-    volumes:
-      - ./dase/:/var/lib/mysql
-    networks:
-      backend:
-        ipv4_address: 172.20.0.10
+  # db:
+  #   image: mysql:8
+  #   <<: [*deploy-dev, *env_file, *restart]
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+  #     - MYSQL_DATABASE=${MYSQL_DATABASE}
+  #     - MYSQL_USER=${MYSQL_USER}
+  #     - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+  #     - MYSQL_ROOT_HOST="%" # <--- Это вам обязательно понадобится при выполнении ДЗ!
+  #   volumes:
+  #     - ./dase/:/var/lib/mysql
+  #   networks:
+  #     backend:
+  #       ipv4_address: 172.20.0.10
 
   web:
-    depends_on: ["db"]
+    # depends_on: ["db"]
     image: example-python
     <<: [*deploy-dev, *env_file, *restart]
     environment:
       - DB_NAME=${MYSQL_DATABASE}
       - DB_USER=${MYSQL_USER}
       - DB_PASSWORD=${MYSQL_PASSWORD}
-      - DB_HOST=db
+      - DB_HOST=${MYSQL_HOST}
     networks:
       backend:
         ipv4_address: 172.20.0.5
